@@ -26,6 +26,7 @@ public class RestaurantService {
     private final RestaurantRepository restaurantRepository;
     private final SessionUserRepository sessionUserRepository;
     private final SessionRepository sessionRepository;
+    private static final String SESSION_NOT_FOUND = "Session not found";
 
     // Constructor injection
     public RestaurantService(RestaurantRepository restaurantRepository,
@@ -51,7 +52,7 @@ public class RestaurantService {
     public RestaurantSubmission submit(Long sessionId, Long userId, String restaurantName) {
 
         Session session = sessionRepository.findById(sessionId)
-                .orElseThrow(() -> new BusinessException("Session not found"));
+                .orElseThrow(() -> new BusinessException(SESSION_NOT_FOUND));
 
         // Block submission after session ends
         if (!"ACTIVE".equals(session.getStatus())) {
@@ -83,7 +84,7 @@ public class RestaurantService {
     public String pickRandom(Long sessionId) {
 
         Session session = sessionRepository.findById(sessionId)
-                .orElseThrow(() -> new BusinessException("Session not found"));
+                .orElseThrow(() -> new BusinessException(SESSION_NOT_FOUND));
 
         if (!"ENDED".equals(session.getStatus())) {
             throw new BusinessException("Session must be ended before picking restaurant");
@@ -111,8 +112,8 @@ public class RestaurantService {
      */
     public List<RestaurantSubmission> getAllBySession(Long sessionId) {
 
-        Session session = sessionRepository.findById(sessionId)
-                .orElseThrow(() -> new BusinessException("Session not found"));
+        sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new BusinessException(SESSION_NOT_FOUND));
 
         return restaurantRepository.findBySessionId(sessionId);
     }

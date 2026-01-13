@@ -30,6 +30,7 @@ public class SessionService {
     private final UserRepository userRepo;
     private final SessionUserRepository sessionUserRepo;
     private final RestaurantRepository restaurantRepository;
+    private static final String STATUS_ENDED = "ENDED";
 
     public SessionService(SessionRepository sessionRepo,
             UserRepository userRepo,
@@ -81,7 +82,7 @@ public class SessionService {
         Session session = sessionRepo.findById(sessionId)
                 .orElseThrow(() -> new RuntimeException("Session not found"));
 
-        if ("ENDED".equals(session.getStatus())) {
+        if (STATUS_ENDED.equals(session.getStatus())) {
             throw new RuntimeException("Cannot join ended session");
         }
 
@@ -125,11 +126,11 @@ public class SessionService {
         }
 
         // Idempotent behavior
-        if ("ENDED".equals(session.getStatus())) {
+        if (STATUS_ENDED.equals(session.getStatus())) {
             return session;
         }
 
-        session.setStatus("ENDED");
+        session.setStatus(STATUS_ENDED);
 
         // Pick restaurant ONLY if any exist
         List<RestaurantSubmission> submissions = restaurantRepository.findBySessionId(sessionId);

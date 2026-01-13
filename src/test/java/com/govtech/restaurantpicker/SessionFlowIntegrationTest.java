@@ -90,10 +90,12 @@ class SessionFlowIntegrationTest {
                 User susane = createUser("susane");
 
                 Session session = sessionService.createSession(john.getId());
+                Long sid = session.getId();
+                Long uid = susane.getId();
 
                 // Then
                 assertThrows(BusinessException.class,
-                                () -> restaurantService.submit(session.getId(), susane.getId(), "KFC"));
+                                () -> restaurantService.submit(sid, uid, "KFC"));
         }
 
         // NEGATIVE CASE
@@ -108,10 +110,12 @@ class SessionFlowIntegrationTest {
                 sessionService.joinSession(session.getId(), jacob.getId());
 
                 sessionService.endSession(session.getId(), john.getId());
+                Long sid = session.getId();
+                Long jid = jacob.getId();
 
                 // Then
                 assertThrows(BusinessException.class,
-                                () -> restaurantService.submit(session.getId(), jacob.getId(), "Dominos"));
+                                () -> restaurantService.submit(sid, jid, "Dominos"));
         }
 
         // NEGATIVE CASE
@@ -123,8 +127,10 @@ class SessionFlowIntegrationTest {
                 User jacob = createUser("jacob");
 
                 Session session = sessionService.createSession(john.getId());
+                Long sid = session.getId();
+                Long jid = jacob.getId();
 
                 // Then
-                assertThrows(BusinessException.class, () -> sessionService.endSession(session.getId(), jacob.getId()));
+                assertThrows(BusinessException.class, () -> sessionService.endSession(sid, jid));
         }
 }
