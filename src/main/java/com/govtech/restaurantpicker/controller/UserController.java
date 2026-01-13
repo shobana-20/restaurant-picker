@@ -4,7 +4,16 @@ import org.springframework.web.bind.annotation.*;
 
 import com.govtech.restaurantpicker.entity.User;
 import com.govtech.restaurantpicker.repository.UserRepository;
+import java.util.List;
 
+/**
+ * REST controller handling APIs to manage user creation.
+ *
+ * Provides endpoints to:
+ * - Create user
+ * - Update user
+ * - List all users
+ */
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -15,13 +24,24 @@ public class UserController {
         this.userRepository = userRepository;
     }
 
+    /**
+     * Create a new user.
+     *
+     * @param user request containing user details
+     * @return created user
+     */
     @PostMapping
     public User createUser(@RequestBody User user) {
         return userRepository.save(user);
     }
 
+    /**
+     * List users.
+     *
+     * @return List all users
+     */
     @GetMapping
-    public java.util.List<User> getAll() {
+    public List<User> getAll() {
         return userRepository.findAll();
     }
 }

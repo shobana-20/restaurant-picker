@@ -1,9 +1,15 @@
 package com.govtech.restaurantpicker.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "users")
+@Getter
+@Setter
+@NoArgsConstructor
 public class User {
 
     @Id
@@ -12,24 +18,4 @@ public class User {
 
     @Column(nullable = false)
     private String name;
-
-    // ===== Constructors =====
-    public User() {}
-
-    public User(String name) {
-        this.name = name;
-    }
-
-    // ===== Getters & Setters =====
-    public Long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 }

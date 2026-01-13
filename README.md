@@ -1,6 +1,6 @@
-## Lunch Picker Application
+## Restaurant Picker Application
 
-Lunch Picker is a Spring Boot backend application that allows a group of users to:
+Restaurant Picker is a Spring Boot backend application that allows a group of users to:
 
 Create a lunch session
 
@@ -11,8 +11,6 @@ Submit restaurant options
 Randomly pick one restaurant
 
 End the session after selection
-
-The application emphasizes clean architecture, business rule enforcement, and testability.
 
 ## Features
 
@@ -60,7 +58,7 @@ Request
   "name": "Alice"
 }
 
-🍽 Session APIs
+## Session APIs
 Create Session
 Method	Endpoint
 POST	/sessions
@@ -75,7 +73,7 @@ Request Body
 Method	Endpoint
 POST	/sessions/{sessionId}/join?userId={userId}
 
-## nd Session
+## End Session
 Method	Endpoint
 POST	/sessions/{sessionId}/end?userId={creatorId}
 
@@ -174,6 +172,18 @@ H2 Console: http://localhost:8080/h2-console
 Batch run to add users : $env:SPRING_PROFILES_ACTIVE="batch"
                          mvn spring-boot:run
 
-👤 Author
+
+## API Testing (Postman)
+
+This project includes a Postman collection for testing all REST APIs.
+
+**Location:** `/postman/RestaurantPicker.postman_collection.json`
+
+### How to use
+1. Import the collection into Postman
+2. Set base URL (e.g. `http://localhost:8080`)
+3. Run APIs in the required order
+
+Author:
 
 Shobana Natarajan

@@ -10,7 +10,6 @@ import org.springframework.test.context.ActiveProfiles;
 import com.govtech.restaurantpicker.entity.Session;
 import com.govtech.restaurantpicker.entity.User;
 import com.govtech.restaurantpicker.repository.UserRepository;
-import com.govtech.restaurantpicker.service.SessionService;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @ActiveProfiles("test")
@@ -23,17 +22,18 @@ class SessionServiceTest {
     private UserRepository userRepository;
 
     @Test
-    void shouldCreateSession() {
-        // Arrange: create a valid user
+    void sessionCreationWithValidUserTest() {
+
+        // Arrange
         User user = new User();
         user.setName("creator");
         user = userRepository.save(user);
 
         // Act
-        Session s = service.createSession(user.getId());
+        Session session = service.createSession(user.getId());
 
         // Assert
-        assertEquals("ACTIVE", s.getStatus());
-        assertEquals(user.getId(), s.getCreatedBy());
+        assertEquals("ACTIVE", session.getStatus());
+        assertEquals(user.getId(), session.getCreatedBy());
     }
 }

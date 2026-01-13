@@ -18,30 +18,35 @@ import org.springframework.transaction.PlatformTransactionManager;
 import com.govtech.restaurantpicker.entity.User;
 import com.govtech.restaurantpicker.repository.UserRepository;
 
+/**
+ * Spring Batch configuration for loading users from a CSV file.
+ *
+ * This job is profile-based and runs only when the "batch" profile is active.
+ * It reads users from users.csv and persists them into the database.
+ */
 @Profile("batch")
 @Configuration
 public class UserBatchConfig {
 
     @Bean
-public FlatFileItemReader<User> userReader() {
-    FlatFileItemReader<User> reader = new FlatFileItemReader<>();
-    reader.setResource(new ClassPathResource("users.csv"));
-    reader.setLinesToSkip(1);
+    public FlatFileItemReader<User> userReader() {
+        FlatFileItemReader<User> reader = new FlatFileItemReader<>();
+        reader.setResource(new ClassPathResource("users.csv"));
+        reader.setLinesToSkip(1);
 
-    DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-    tokenizer.setNames("name");
+        DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
+        tokenizer.setNames("name");
 
-    BeanWrapperFieldSetMapper<User> mapper = new BeanWrapperFieldSetMapper<>();
-    mapper.setTargetType(User.class);
+        BeanWrapperFieldSetMapper<User> mapper = new BeanWrapperFieldSetMapper<>();
+        mapper.setTargetType(User.class);
 
-    DefaultLineMapper<User> lineMapper = new DefaultLineMapper<>();
-    lineMapper.setLineTokenizer(tokenizer);
-    lineMapper.setFieldSetMapper(mapper);
+        DefaultLineMapper<User> lineMapper = new DefaultLineMapper<>();
+        lineMapper.setLineTokenizer(tokenizer);
+        lineMapper.setFieldSetMapper(mapper);
 
-    reader.setLineMapper(lineMapper);
-    return reader;
-}
-
+        reader.setLineMapper(lineMapper);
+        return reader;
+    }
 
     @Bean
     public Step loadUsersStep(

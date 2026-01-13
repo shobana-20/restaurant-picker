@@ -2,7 +2,13 @@ package com.govtech.restaurantpicker.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class RestaurantRequest {
 
     @NotNull
@@ -10,23 +16,4 @@ public class RestaurantRequest {
 
     @NotBlank
     private String restaurantName;
-
-    public RestaurantRequest() {
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public String getRestaurantName() {
-        return restaurantName;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public void setRestaurantName(String restaurantName) {
-        this.restaurantName = restaurantName;
-    }
 }

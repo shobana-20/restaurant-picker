@@ -2,9 +2,12 @@ package com.govtech.restaurantpicker.batch;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.UUID;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,25 +18,30 @@ import com.govtech.restaurantpicker.repository.UserRepository;
 
 @SpringBootTest
 @SpringBatchTest
-@ActiveProfiles({"test", "batch"})
+@ActiveProfiles({ "test", "batch" })
 class UserBatchJobTest {
 
-    @Autowired
-    private JobLauncherTestUtils jobLauncherTestUtils;
+        @Autowired
+        private JobLauncherTestUtils jobLauncherTestUtils;
 
-    @Autowired
-    private UserRepository userRepository;
+        @Autowired
+        private UserRepository userRepository;
 
-    @Test
-    void loadUsersJob_shouldInsertUsers() throws Exception {
+        @Test
+        void loadUsersJobTest() throws Exception {
 
-        JobExecution execution =
-                jobLauncherTestUtils.launchJob();
+                long beforeCount = userRepository.count();
 
-        assertThat(execution.getStatus())
-                .isEqualTo(BatchStatus.COMPLETED);
+                JobExecution execution = jobLauncherTestUtils.launchJob();
 
-        assertThat(userRepository.count())
-                .isGreaterThan(0);
-    }
+                assertThat(execution.getStatus())
+                                .isEqualTo(BatchStatus.COMPLETED);
+
+                long afterCount = userRepository.count();
+
+                // CSV has 3 records
+                assertThat(afterCount - beforeCount)
+                                .isEqualTo(3);
+        }
+
 }

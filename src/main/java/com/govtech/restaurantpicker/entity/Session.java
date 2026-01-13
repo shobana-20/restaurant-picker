@@ -1,9 +1,15 @@
 package com.govtech.restaurantpicker.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "sessions")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Session {
 
     @Id
@@ -17,32 +23,4 @@ public class Session {
     private String status; // ACTIVE, ENDED
 
     private String pickedRestaurant;
-
-    public Long getId() {
-        return id;
-    }
-
-    public Long getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(Long createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public String getPickedRestaurant() {
-        return pickedRestaurant;
-    }
-
-    public void setPickedRestaurant(String pickedRestaurant) {
-        this.pickedRestaurant = pickedRestaurant;
-    }
 }

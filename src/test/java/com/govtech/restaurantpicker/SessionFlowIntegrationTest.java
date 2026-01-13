@@ -14,7 +14,6 @@ import com.govtech.restaurantpicker.entity.Session;
 import com.govtech.restaurantpicker.entity.User;
 import com.govtech.restaurantpicker.exception.BusinessException;
 import com.govtech.restaurantpicker.repository.RestaurantRepository;
-import com.govtech.restaurantpicker.repository.SessionRepository;
 import com.govtech.restaurantpicker.repository.SessionUserRepository;
 import com.govtech.restaurantpicker.repository.UserRepository;
 import com.govtech.restaurantpicker.service.RestaurantService;
@@ -24,74 +23,108 @@ import com.govtech.restaurantpicker.service.SessionService;
 @Transactional
 class SessionFlowIntegrationTest {
 
-    @Autowired
-    UserRepository userRepository;
+        @Autowired
+        private UserRepository userRepository;
 
-    @Autowired
-    SessionService sessionService;
+        @Autowired
+        private SessionService sessionService;
 
-    @Autowired
-    RestaurantService restaurantService;
+        @Autowired
+        private RestaurantService restaurantService;
 
-    @Autowired
-    SessionRepository sessionRepository;
+        @Autowired
+        private SessionUserRepository sessionUserRepository;
 
-    @Autowired
-    SessionUserRepository sessionUserRepository;
+        @Autowired
+        private RestaurantRepository restaurantRepository;
 
-    @Autowired
-    RestaurantRepository restaurantRepository;
+        // Helper method (reduces duplication)
+        private User createUser(String name) {
+                User user = new User();
+                user.setName(name);
+                return userRepository.save(user);
+        }
 
-    @Test
-    void fullRestaurantPickerFlow_shouldWorkCorrectly() {
+        // POSITIVE FLOW
+        @Test
+        void sessionFlowTest() {
 
-        // STEP 1 Create users
-        User john = userRepository.save(new User("john"));
-        User jacob = userRepository.save(new User("jacob"));
-        User susane = userRepository.save(new User("susane"));
+                // Given
+                User john = createUser("john");
+                User jacob = createUser("jacob");
 
-        assertNotNull(john.getId());
-        assertNotNull(jacob.getId());
-        assertNotNull(susane.getId());
+                // When: create session
+                Session session = sessionService.createSession(john.getId());
+                assertEquals("ACTIVE", session.getStatus());
 
-        // STEP 2️ Create session by john
-        Session session = sessionService.createSession(john.getId());
-        assertEquals("ACTIVE", session.getStatus());
+                Long sessionId = session.getId();
 
-        Long sessionId = session.getId();
+                // When: join session
+                sessionService.joinSession(sessionId, jacob.getId());
+                assertTrue(sessionUserRepository.existsBySessionIdAndUserId(sessionId, jacob.getId()));
 
-        // STEP 3️ jacob joins session
-        sessionService.joinSession(sessionId, jacob.getId());
-        assertTrue(sessionUserRepository.existsBySessionIdAndUserId(sessionId, jacob.getId()));
+                // When: submit restaurant
+                RestaurantSubmission submission = restaurantService.submit(sessionId, jacob.getId(),
+                                "Paradise Biryani");
 
-        // STEP 4️ jacob submits restaurant
-        RestaurantSubmission submission =
-                restaurantService.submit(sessionId, jacob.getId(), "Paradise Biryani");
+                assertNotNull(submission.getId());
 
-        assertNotNull(submission.getId());
+                // When: end session
+                Session endedSession = sessionService.endSession(sessionId, john.getId());
 
-        // STEP 5️ End session by john
-        Session endedSession = sessionService.endSession(sessionId, john.getId());
+                // Then
+                assertEquals("ENDED", endedSession.getStatus());
+                assertEquals("Paradise Biryani", endedSession.getPickedRestaurant());
 
-        assertEquals("ENDED", endedSession.getStatus());
-        assertNotNull(endedSession.getPickedRestaurant());
+                List<RestaurantSubmission> restaurants = restaurantRepository.findBySessionId(sessionId);
 
-        // STEP 6️ Get all restaurants
-        List<RestaurantSubmission> restaurants =
-                restaurantRepository.findBySessionId(sessionId);
+                assertEquals(1, restaurants.size());
+        }
 
-        assertEquals(1, restaurants.size());
+        // NEGATIVE CASE
+        @Test
+        void submitRestaurantWithoutUserTest() {
 
-        // STEP 7️ Pick random restaurant
-        String picked = endedSession.getPickedRestaurant();
-        assertEquals("Paradise Biryani", picked);
+                // Given
+                User john = createUser("john");
+                User susane = createUser("susane");
 
-        
-        assertThrows(BusinessException.class, () ->
-                restaurantService.submit(sessionId, susane.getId(), "KFC"));
+                Session session = sessionService.createSession(john.getId());
 
-       
-        assertThrows(BusinessException.class, () ->
-                restaurantService.submit(sessionId, jacob.getId(), "Dominos"));
-    }
+                // Then
+                assertThrows(BusinessException.class,
+                                () -> restaurantService.submit(session.getId(), susane.getId(), "KFC"));
+        }
+
+        // NEGATIVE CASE
+        @Test
+        void submitRestaurantAfterSessionClosedTest() {
+
+                // Given
+                User john = createUser("john");
+                User jacob = createUser("jacob");
+
+                Session session = sessionService.createSession(john.getId());
+                sessionService.joinSession(session.getId(), jacob.getId());
+
+                sessionService.endSession(session.getId(), john.getId());
+
+                // Then
+                assertThrows(BusinessException.class,
+                                () -> restaurantService.submit(session.getId(), jacob.getId(), "Dominos"));
+        }
+
+        // NEGATIVE CASE
+        @Test
+        void closeSessionByOtherUserTest() {
+
+                // Given
+                User john = createUser("john");
+                User jacob = createUser("jacob");
+
+                Session session = sessionService.createSession(john.getId());
+
+                // Then
+                assertThrows(BusinessException.class, () -> sessionService.endSession(session.getId(), jacob.getId()));
+        }
 }
