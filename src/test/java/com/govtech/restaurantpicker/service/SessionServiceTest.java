@@ -24,15 +24,15 @@ class SessionServiceTest {
     @Test
     void sessionCreationWithValidUserTest() {
 
-        // Arrange
+        // Given
         User user = new User();
         user.setName("creator");
         user = userRepository.save(user);
 
-        // Act
+        // When
         Session session = service.createSession(user.getId());
 
-        // Assert
+        // Then
         assertEquals("ACTIVE", session.getStatus());
         assertEquals(user.getId(), session.getCreatedBy());
     }

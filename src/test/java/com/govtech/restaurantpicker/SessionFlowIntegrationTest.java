@@ -49,30 +49,24 @@ class SessionFlowIntegrationTest {
         @Test
         void sessionFlowTest() {
 
-                // Given
                 User john = createUser("john");
                 User jacob = createUser("jacob");
 
-                // When: create session
                 Session session = sessionService.createSession(john.getId());
                 assertEquals("ACTIVE", session.getStatus());
 
                 Long sessionId = session.getId();
 
-                // When: join session
                 sessionService.joinSession(sessionId, jacob.getId());
                 assertTrue(sessionUserRepository.existsBySessionIdAndUserId(sessionId, jacob.getId()));
 
-                // When: submit restaurant
                 RestaurantSubmission submission = restaurantService.submit(sessionId, jacob.getId(),
                                 "Paradise Biryani");
 
                 assertNotNull(submission.getId());
 
-                // When: end session
                 Session endedSession = sessionService.endSession(sessionId, john.getId());
 
-                // Then
                 assertEquals("ENDED", endedSession.getStatus());
                 assertEquals("Paradise Biryani", endedSession.getPickedRestaurant());
 
