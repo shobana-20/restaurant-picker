@@ -14,13 +14,11 @@ import com.govtech.restaurantpicker.repository.UserRepository;
 
 /**
  * Service responsible for managing session operations.
- *
  * A session represents a single lunch decision flow where:
  * - One user creates the session
  * - Other users may join
  * - Joined users can submit restaurant suggestions
  * - The creator ends the session and a restaurant is picked
- *
  * All business rules related to sessions are added here.
  */
 @Service
@@ -44,14 +42,14 @@ public class SessionService {
 
     /**
      * Creates a new lunch session for the given user.
-     *
+     * 
      * @param userId ID of the user creating the session
      * @return the created session in ACTIVE state
      * @throws BusinessException if the user does not exist
      */
     public Session createSession(Long userId) {
         if (!userRepo.existsById(userId)) {
-            throw new RuntimeException("User not allowed");
+            throw new BusinessException("User not allowed");
         }
 
         Session session = new Session();
@@ -80,18 +78,18 @@ public class SessionService {
     public void joinSession(Long sessionId, Long userId) {
 
         Session session = sessionRepo.findById(sessionId)
-                .orElseThrow(() -> new RuntimeException("Session not found"));
+                .orElseThrow(() -> new BusinessException("Session not found"));
 
         if (STATUS_ENDED.equals(session.getStatus())) {
-            throw new RuntimeException("Cannot join ended session");
+            throw new BusinessException("Cannot join ended session");
         }
 
         if (!userRepo.existsById(userId)) {
-            throw new RuntimeException("Invalid user");
+            throw new BusinessException("Invalid user");
         }
 
         if (sessionUserRepo.existsBySessionIdAndUserId(sessionId, userId)) {
-            throw new RuntimeException("User already joined");
+            throw new BusinessException("User already joined");
         }
 
         sessionUserRepo.save(new SessionUser(sessionId, userId));
@@ -99,7 +97,6 @@ public class SessionService {
 
     /**
      * Ends an active session and selects a restaurant from submitted suggestions.
-     *
      * Only the session creator is allowed to end the session.
      * Once ended:
      * - The session status becomes ENDED
